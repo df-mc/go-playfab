@@ -3,6 +3,7 @@ package playfab
 import (
 	"errors"
 	"fmt"
+	"github.com/df-mc/go-xsapi"
 )
 
 type XBLIdentityProvider struct {
