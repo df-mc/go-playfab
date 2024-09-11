@@ -10,18 +10,25 @@ import (
 )
 
 type Filter struct {
-	// Count is the number of returned items included in the SearchResult. The maximum value is 50 and is stored
-	// to 10 service-side by default.
+	// Count is the number of returned items included in the SearchResult.
+	// The maximum value is 50, and defaulted to 10 by the service-side.
 	Count int `json:"Count,omitempty"`
-	// ContinuationToken is the opaque token used for continuing the query of Search, if any are available. It is
-	// normally filled from SearchResult.ContinuationToken.
+	// ContinuationToken is the opaque token used for continuing the Search,
+	// if any are available. It is normally filled from [SearchResult.ContinuationToken].
 	ContinuationToken string `json:"ContinuationToken,omitempty"`
 	// CustomTags is the optional properties associated with the request.
 	CustomTags map[string]any `json:"CustomTags,omitempty"`
-	// Entity is the nil-able entity.Key to perform any actions.
+	// Entity is an [entity.Key] to perform any actions using the Filter.
+	// If left as nil and an [entity.Token] has been provided to [Filter.Search],
+	// it will be filled from [entity.Token.Key].
 	Entity *entity.Key `json:"Entity,omitempty"`
-	// Filter is an OData query for filtering the SearchResult.
+	// Filter is an OData query for filtering the items included in SearchResult.
+	// For example, "<Field of Item> eq '<Value of Item>'".
 	Filter string `json:"Filter,omitempty"`
+	// Language is the locale to be included in the dictionary of Items returned in
+	// the SearchResult. It is also used as an 'Accept-Language' header of the request
+	// sent from [SearchResult.Search].
+	Language language.Tag `json:"Language,omitempty"`
 	// OrderBy is an OData sort query for sorting the index of SearchResult. Defaulted to relevance.
 	OrderBy string `json:"OrderBy,omitempty"`
 	// Term is the string terms to be searched.
@@ -30,13 +37,13 @@ type Filter struct {
 	Select string `json:"Select,omitempty"`
 	// Store ...
 	Store *StoreReference `json:"Store,omitempty"`
-
-	// Language is used as the `Accept-Language` header of the request and is generally used to display
-	// a localized dictionaries of Items included in SearchResult.
-	Language language.Tag `json:"-"`
 }
 
-// Search will perform the search query in the catalog using the title. An authorization entity is optionally required in the service-side.
+// Search performs a search against the public catalog using the Filter and returns a set of
+// paginated SearchResult. It uses a cache of the catalog with item updates taking up to few
+// minutes to propagate. If trying to immediately retrieve recent Item updates, a Query should
+// be used. More information about the Search API can be found here:
+// https://learn.microsoft.com/en-us/gaming/playfab/features/economy-v2/catalog/search
 func (f Filter) Search(t title.Title, tok *entity.Token) (*SearchResult, error) {
 	if f.Count > 50 {
 		return nil, fmt.Errorf("playfab/catalog: Filter: count must be <= 50, got %d", f.Count)
@@ -56,8 +63,9 @@ func (f Filter) Search(t title.Title, tok *entity.Token) (*SearchResult, error) 
 }
 
 type SearchResult struct {
-	// ContinuationToken provides a token for continuing to the next SearchResult by specifying
-	// the [Filter.ContinuationToken] to it. It may be an empty string if there is nothing left.
+	// ContinuationToken provides an opaque token for continuing the next page of
+	// SearchResult by specifying it to [Filter.ContinuationToken], if any are available.
 	ContinuationToken string `json:"ContinuationToken,omitempty"`
-	Items             []Item `json:"Items,omitempty"`
+	// Items is a paginated set of Item for the search query.
+	Items []Item `json:"Items,omitempty"`
 }

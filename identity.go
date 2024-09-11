@@ -7,17 +7,32 @@ import (
 	"time"
 )
 
+// Identity a session identity that can subsequently be used for API which requires an authentication.
+// It is generally returned as a result of [IdentityProvider.Login] or [LoginConfig.Login].
 type Identity struct {
-	EntityToken         *entity.Token       `json:"EntityToken,omitempty"`
-	ResponseParameters  ResponseParameters  `json:"InfoResultPayload,omitempty"`
-	LastLoginTime       time.Time           `json:"LastLoginTime,omitempty"`
-	NewlyCreated        bool                `json:"NewlyCreated,omitempty"`
-	PlayFabID           string              `json:"PlayFabId,omitempty"`
-	SessionTicket       string              `json:"SessionTicket,omitempty"`
+	// EntityToken is an [entity.Token] of [entity.TypeTitlePlayerAccount].
+	// API requests will mostly require an [entity.Token] of [entity.TypeMasterPlayerAccount]
+	// so you may exchange it with [entity.Token.Exchange] with PlayFabID.
+	EntityToken        *entity.Token      `json:"EntityToken,omitempty"`
+	ResponseParameters ResponseParameters `json:"InfoResultPayload,omitempty"`
+	// LastLoginTime is the time of previous login. If there was no previous login, it is zero [time.Time].
+	LastLoginTime time.Time `json:"LastLoginTime,omitempty"`
+	// NewlyCreated is true if the account was newly created on login.
+	NewlyCreated bool `json:"NewlyCreated,omitempty"`
+	// PlayFabID is the unique ID of player. It can be used for exchanging an [entity.Token]
+	// of [entity.TypeMasterPlayerAccount] with [entity.Token.Exchange].
+	PlayFabID string `json:"PlayFabId,omitempty"`
+	// SessionTicket is a unique token authorizing the user and game at server level, for the
+	// current session. In Minecraft, it is used for authorizing with franchise API using a PlayFab token.
+	SessionTicket string `json:"SessionTicket,omitempty"`
+	// SettingsForUser is the settings specific to the user.
 	SettingsForUser     UserSettings        `json:"SettingsForUser,omitempty"`
 	TreatmentAssignment TreatmentAssignment `json:"TreatmentAssignment,omitempty"`
 }
 
+// ResponseParameters is a set of parameters requested to be included in [RequestParameters], which is
+// a part of [LoginConfig] as [LoginConfig.RequestParameters]. It includes an information of player/entity
+// signed in at Identity.
 type ResponseParameters struct {
 	Account                         UserAccount                 `json:"AccountInfo,omitempty"`
 	CharacterInventories            []CharacterInventory        `json:"CharacterInventories,omitempty"`
@@ -34,6 +49,7 @@ type ResponseParameters struct {
 	UserVirtualCurrencyRechargeTime VirtualCurrencyRechargeTime `json:"UserVirtualCurrencyRechargeTimes"`
 }
 
+// UserAccount specifies an account information for several platforms that supports PlayFab as an identity provider.
 type UserAccount struct {
 	AndroidDevice          UserAndroidDevice          `json:"AndroidDeviceInfo,omitempty"`
 	AppleAccount           UserAppleAccount           `json:"AppleAccountInfo,omitempty"`

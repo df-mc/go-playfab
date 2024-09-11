@@ -15,8 +15,10 @@ func (tok *Token) Expired() bool                   { return time.Now().After(tok
 func (tok *Token) SetAuthHeader(req *http.Request) { req.Header.Set("X-EntityToken", tok.Token) }
 
 type Key struct {
-	ID   string `json:"Id,omitempty"`
-	Type Type   `json:"Type,omitempty"`
+	// ID is the unique ID of the entity.
+	ID string `json:"Id,omitempty"`
+	// Type is the type of entity. It is one of constants defined below.
+	Type Type `json:"Type,omitempty"`
 }
 
 type Type string
