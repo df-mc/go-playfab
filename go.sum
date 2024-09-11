@@ -1,0 +1,5 @@
+github.com/df-mc/go-xsapi v0.0.0-20240902102602-e7c4bffb955f h1:D+4m5W0ck5MIvzgUBF+tSU/yNkxnvydPfeojHRtmlW0=
+github.com/df-mc/go-xsapi v0.0.0-20240902102602-e7c4bffb955f/go.mod h1:5M0+2xDLeLQ3cbM+w92R5/gYM1IaSuxoOle9UXN1HB0=
+github.com/lactyy/go-xsapi v0.0.0-20240902120723-5a844e61607e/go.mod h1:yMOOWhg3JL/t3si+6jb+UZgYS/E2RU4A6oanupqk3iI=
+golang.org/x/text v0.17.0 h1:XtiM5bkSOt+ewxlOE/aE/AKEHibwj/6gvWMl9Rsh0Qc=
+golang.org/x/text v0.17.0/go.mod h1:BuEKDfySbSR4drPmRPG/7iBdf8hvFMuRexcpahXilzY=
