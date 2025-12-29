@@ -2,8 +2,11 @@ package playfab
 
 import "github.com/df-mc/go-playfab/internal"
 
+// Result represents a successful response in PlayFab API.
+// Make sure to specify the T generic type to whatever you want in the Data.
 type Result[T any] internal.Result[T]
 
+// Error represents an error included in the response body.
 type Error = internal.Error
 
 const (

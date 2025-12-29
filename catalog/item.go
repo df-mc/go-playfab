@@ -2,84 +2,112 @@ package catalog
 
 import (
 	"encoding/json"
-	"github.com/df-mc/go-playfab/entity"
 	"time"
+
+	"github.com/df-mc/go-playfab/entity"
 )
 
+// An Item represents an item in the catalog in PlayFab.
 type Item struct {
 	// AlternateIDs is the alternate IDs associated with the Item. An alternate
 	// ID can be set to 'FriendlyId' or any of the supported marketplace names.
 	AlternateIDs []AlternateID `json:"AlternateIds,omitempty"`
+
 	// ContentType is the client-defined type of the Item.
 	ContentType string `json:"ContentType,omitempty"`
+
 	// Contents is the set of content/files associated with the Item. Up to 100
 	// files can be added to an Item. In Minecraft, it includes a set of URL for 'XForge'
 	// where it contains a ZIP file containing a set of encrypted packs.
 	Contents []Content `json:"Contents,omitempty"`
+
 	// CreationDate is the date and time when the Item was created.
 	CreationDate time.Time `json:"CreationDate,omitempty"`
+
 	// CreatorEntity is the [entity.Key] of the creator of the Item.
 	CreatorEntity entity.Key `json:"CreatorEntity,omitempty"`
+
 	// DeepLinks is the set of platform specific deep links for the Item.
 	DeepLinks []DeepLink `json:"DeepLinks,omitempty"`
+
 	// DefaultStackID is the stack ID that will be used as default for the Item
 	// in inventory when an explicit one is not provided. The DefaultStackID can be
 	// a static stack ID or '{GUID}', which will generate a unique stack ID for the
 	// Item. If empty, inventory's default stack ID will be used.
 	DefaultStackID string `json:"DefaultStackId,omitempty"`
+
 	// Description is a Dictionary of localized descriptions. Descriptions have
 	// a 10000-character limit per country code.
 	Description Dictionary[string] `json:"Description,omitempty"`
+
 	// DisplayProperties is a game-specific properties for display purposes. It is
 	// an arbitrary JSON blob. The fields of DisplayProperties has a 10000-byte
 	// limit per Item. In Minecraft, it contains the name of creator, whether
 	// the Item is purchasable, a URL of video trailer, prices, address and port of
 	// server (If ContentType is '3PP' or '3PP_V2.0').
 	DisplayProperties map[string]json.RawMessage `json:"DisplayProperties,omitempty"`
+
 	// DisplayVersion is the user-provided version of the Item for display
 	// purposes. It has a maximum character length of 50.
 	DisplayVersion string `json:"DisplayVersion,omitempty"`
+
 	// ETag is the current ETag value that can be used for optimistic
 	// concurrency in the 'If-None-Match' header.
 	ETag string `json:"ETag,omitempty"`
+
 	// EndDate is the date of when the Item will cease to be available. If left
 	// a zero [time.Time] then the product will be available indefinitely.
 	EndDate time.Time `json:"EndDate,omitempty"`
+
 	// ID is the unique ID of the Item. It can be specified to [Query.ID].
 	ID string `json:"Id,omitempty"`
+
 	// Images is the images associated with the Item. Images can be thumbnails
 	// or screenshots. Up to 100 images can be added to an Item. Only .png, .jpg,
 	// .gif, and .bmp file types can be uploaded.
 	Images []Image `json:"Images,omitempty"`
+
 	// Hidden indicates if the Item is hidden.
 	Hidden bool `json:"IsHidden,omitempty"`
+
 	// ItemReferences is the item references associated with the Item. Every Item
 	// can have up to 50 item references.
 	ItemReferences []ItemReference `json:"ItemReferences,omitempty"`
+
 	// Keywords is a Dictionary of localized keywords. Keywords have a 50-character
 	// limit per keyword and up to 32 keywords can be added per country code.
 	Keywords Dictionary[*Keyword] `json:"Keywords,omitempty"`
+
 	// LastModifiedDate is the date and time the Item was last updated.
 	LastModifiedDate time.Time `json:"LastModifiedDate,omitempty"`
+
 	// Moderation is the moderation state for the Item.
 	Moderation ModerationState `json:"Moderation,omitempty"`
+
 	// Platforms is the platforms supported by the Item.
 	Platforms []string `json:"Platforms,omitempty"`
+
 	// PriceOptions is the prices the Item can be purchased for.
 	PriceOptions PriceOptions `json:"PriceOptions,omitempty"`
+
 	// Rating s the rating summary for the Item.
 	Rating Rating `json:"Rating,omitempty"`
+
 	// StartDate is the date of when the Item will be available. If left as
 	// a zero [time.Time] then the product will appear immediately.
 	StartDate time.Time `json:"StartDate,omitempty"`
+
 	// StoreDetails is an optional details for stores items.
 	StoreDetails StoreDetails `json:"StoreDetails,omitempty"`
+
 	// Tags is the list of tags that are associated with the Item. Up to 32 tags
 	// can be added to an Item.
 	Tags []string `json:"Tags,omitempty"`
+
 	// Title is a Dictionary of localized titles. Titles have a 512-character limit
 	// per country code.
 	Title Dictionary[string] `json:"Title,omitempty"`
+
 	// Type is the high-level type of the Item. It is one of constants defined below.
 	Type string `json:"Type,omitempty"`
 }

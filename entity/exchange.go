@@ -17,6 +17,7 @@ func (tok *Token) Exchange(t title.Title, id string) (_ *Token, err error) {
 	return internal.Post[*Token](t.URL().JoinPath("/Authentication/GetEntityToken"), r, tok.SetAuthHeader)
 }
 
+// exchange represents a request body for exchanging an entity token.
 type exchange struct {
 	CustomTags map[string]any `json:"CustomTags,omitempty"`
 	Entity     Key            `json:"Entity,omitempty"`

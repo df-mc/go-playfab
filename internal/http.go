@@ -9,6 +9,8 @@ import (
 	"net/url"
 )
 
+// Post sends a POST request to the URL with handling both error and successful responses.
+// Make sure to specify T as the data type for successful result.
 func Post[T any](u *url.URL, r any, hooks ...func(req *http.Request)) (zero T, err error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(r); err != nil {
