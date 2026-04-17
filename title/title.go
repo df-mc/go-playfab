@@ -5,12 +5,8 @@ import (
 	"strings"
 )
 
-// Title represents a PlayFab title. The string itself is a hexadecimal ID of the title.
 type Title string
 
-// URL returns a base [url.URL] of the Title. It is generally called for sending a request to
-// the API for the Title. It follows the format 'https://XXX.playfabapi.com', where X is
-// the lowercase ID of title.
 func (t Title) URL() *url.URL {
 	return &url.URL{
 		Scheme: "https",

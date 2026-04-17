@@ -1,8 +1,6 @@
 package internal
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // Result represents a successful response in PlayFab API.
 // Make sure to specify the T generic type to whatever you want in the Data.

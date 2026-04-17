@@ -1,10 +1,15 @@
 module github.com/df-mc/go-playfab
 
-go 1.23.0
+go 1.26.1
 
 require (
-	github.com/df-mc/go-xsapi v0.0.0-20240902102602-e7c4bffb955f // indirect
-	golang.org/x/text v0.17.0 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.3
+	github.com/google/uuid v1.6.0
+	golang.org/x/oauth2 v0.36.0
+	golang.org/x/text v0.35.0
 )
 
-replace github.com/df-mc/go-xsapi => github.com/lactyy/go-xsapi v0.0.0-20240902120723-5a844e61607e
+require (
+	github.com/coder/websocket v1.8.14 // indirect
+	github.com/df-mc/go-xsapi/v2 v2.0.0 // indirect
+)

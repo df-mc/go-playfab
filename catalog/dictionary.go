@@ -2,50 +2,47 @@ package catalog
 
 import (
 	"encoding/json"
-	"errors"
-	"golang.org/x/text/language"
+	"fmt"
 	"strings"
+
+	"golang.org/x/text/language"
 )
 
-type Dictionary[T comparable] struct{ self map[string]T }
+type Dictionary[T any] map[string]T
 
-func (dict *Dictionary[T]) Message(tag language.Tag) (zero T) {
-	msg, ok := dict.Lookup(tag.String())
-	if !ok || msg == zero {
-		return dict.Neutral()
-	}
-	return msg
-}
-
-func (dict *Dictionary[T]) Lookup(key string) (zero T, ok bool) {
-	for compare, msg := range dict.self {
-		if strings.EqualFold(compare, key) {
-			return msg, true
+func (d *Dictionary[T]) Lookup(key string) (zero T, ok bool) {
+	for k, value := range *d {
+		if strings.EqualFold(k, key) {
+			return value, true
 		}
 	}
 	return zero, false
 }
 
-const neutralKey = "NEUTRAL"
-
-func (dict *Dictionary[T]) Neutral() (zero T) {
-	for key, msg := range dict.self {
-		if strings.EqualFold(key, neutralKey) && msg != zero {
-			return msg
+func (d *Dictionary[T]) Neutral() (value T) {
+	for key, v := range *d {
+		if value = v; strings.EqualFold(key, "neutral") {
+			break
 		}
 	}
-	return
+	return value
 }
 
-func (dict *Dictionary[T]) Map() map[string]T { return dict.self }
-
-func (dict *Dictionary[T]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(dict.self)
-}
-
-func (dict *Dictionary[T]) UnmarshalJSON(b []byte) error {
-	if dict == nil {
-		return errors.New("playfab/catalog: cannot unmarshal a nil *Dictionary")
+func (d *Dictionary[T]) UnmarshalJSON(b []byte) error {
+	type Alias Dictionary[T]
+	if err := json.Unmarshal(b, (*Alias)(d)); err != nil {
+		return err
 	}
-	return json.Unmarshal(b, &dict.self)
+	for key := range *d {
+		if strings.EqualFold(key, "neutral") {
+			continue
+		}
+		if _, err := language.Parse(key); err != nil {
+			return fmt.Errorf("catalog: Dictionary: parse %q as language tag: %w", key, err)
+		}
+	}
+	// if !hasNeutral {
+	//	return errors.New("catalog: Dictionary must contain a value for NEUTRAL key")
+	// }
+	return nil
 }
