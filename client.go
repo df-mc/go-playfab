@@ -10,7 +10,9 @@ import (
 
 	"github.com/df-mc/go-playfab/catalog"
 	"github.com/df-mc/go-playfab/entity"
+	"github.com/df-mc/go-playfab/internal"
 	"github.com/df-mc/go-playfab/title"
+	"golang.org/x/text/language"
 )
 
 // Login signs in to the PlayFab account using the given [IdentityProvider], and returns a new Client.
@@ -47,6 +49,16 @@ func Login(ctx context.Context, t title.Title, idp IdentityProvider, config Clie
 	client.catalog = catalog.New(client.client, t, client.MasterPlayerAccount())
 
 	return client, nil
+}
+
+type RequestOption = internal.RequestOption
+
+func AcceptLanguage(tags []language.Tag) RequestOption {
+	return internal.AcceptLanguage(tags)
+}
+
+func RequestHeader(key, value string) RequestOption {
+	return internal.RequestHeader(key, value)
 }
 
 // Client implements an API client for PlayFab.
