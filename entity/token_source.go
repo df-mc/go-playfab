@@ -65,6 +65,7 @@ func (r *reuseTokenSource) background(cancel context.CancelCauseFunc) {
 				cancel(fmt.Errorf("exchange token in background: %w", err))
 				return
 			}
+			r.t = token
 			exp = token.Expiration
 			r.mu.Unlock()
 			r.log.Debug("exchanged entity token in background", slog.Any("entity", r.key))
