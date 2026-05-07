@@ -148,7 +148,7 @@ func (c *Client) login(ctx context.Context) (*LoginResult, error) {
 	c.loginMu.Lock()
 	defer c.loginMu.Unlock()
 
-	if c.loginResult != nil && c.loginResult.Valid() && time.Now().After(c.loginTime.Add(loginExpiration-loginExpirationDelta)) {
+	if c.loginResult != nil && c.loginResult.Valid() && time.Now().Before(c.loginTime.Add(loginExpiration-loginExpirationDelta)) {
 		return c.loginResult, nil
 	}
 
