@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -24,6 +25,8 @@ func (d *Dictionary[T]) Lookup(key string) (zero T, ok bool) {
 }
 
 // Neutral returns a neutral text for the Dictionary.
+// When a text with the 'NEUTRAL' key was not found in
+// the Dictionary, it returns the last value found in Dictionary.
 func (d *Dictionary[T]) Neutral() (value T) {
 	for key, v := range *d {
 		if value = v; strings.EqualFold(key, "neutral") {
@@ -39,13 +42,18 @@ func (d *Dictionary[T]) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, (*Alias)(d)); err != nil {
 		return err
 	}
+	var hasNeutral bool
 	for key := range *d {
 		if strings.EqualFold(key, "neutral") {
+			hasNeutral = true
 			continue
 		}
 		if _, err := language.Parse(key); err != nil {
 			return fmt.Errorf("catalog: Dictionary: parse %q as language tag: %w", key, err)
 		}
+	}
+	if !hasNeutral {
+		return errors.New("catalog: Dictionary: no value was found for neutral")
 	}
 	return nil
 }
