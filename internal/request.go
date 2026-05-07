@@ -104,6 +104,12 @@ type contextKey struct{}
 // used to issue the request.
 var HTTPClient contextKey
 
+// DefaultLanguage is the default language applied by default.
+var DefaultLanguage = []language.Tag{
+	language.AmericanEnglish,
+	language.English,
+}
+
 // ContextClient returns an HTTP client based on the given [context.Context].
 func ContextClient(ctx context.Context) *http.Client {
 	if hc, ok := ctx.Value(HTTPClient).(*http.Client); ok {

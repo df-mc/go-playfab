@@ -38,6 +38,7 @@ func (c *Client) SearchItems(ctx context.Context, filter SearchFilter, opts ...i
 		filter,
 		append(opts,
 			entity.RequestOption(c.src),
+			internal.AcceptLanguage(internal.DefaultLanguage),
 		),
 	)
 }
@@ -51,6 +52,7 @@ func (c *Client) ItemByID(ctx context.Context, id uuid.UUID, opts ...internal.Re
 		itemRequest{ID: id},
 		append(opts,
 			entity.RequestOption(c.src),
+			internal.AcceptLanguage(internal.DefaultLanguage),
 		),
 	)
 	if err != nil {
