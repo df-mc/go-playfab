@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"sync"
 	"time"
 
@@ -39,9 +38,8 @@ func ExchangeTokenSource(ctx context.Context, title title.Title, token *Token, k
 }
 
 type reuseTokenSource struct {
-	title  title.Title
-	client *http.Client
-	key    Key
+	title title.Title
+	key   Key
 
 	log *slog.Logger
 
