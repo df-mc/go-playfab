@@ -13,8 +13,17 @@ import (
 	"golang.org/x/text/language"
 )
 
+// RequestOption specifies an option to be applied to an outgoing HTTP request.
+//
+// Callers may accept multiple RequestOptions as a variadic or slice parameter.
+// Options must be applied to the request using [Apply].
+//
+// A RequestOption must be reusable and must not hold any per-request state.
 type RequestOption func(req *http.Request) error
 
+// AcceptLanguage returns a [internal.RequestOption] that appends the given
+// language tags to the 'Accept-Language' header on outgoing requests,
+// preserving any tags already present in the header.
 func AcceptLanguage(tags []language.Tag) RequestOption {
 	s := make([]string, len(tags))
 	for i, tag := range tags {
@@ -26,6 +35,8 @@ func AcceptLanguage(tags []language.Tag) RequestOption {
 	}
 }
 
+// RequestHeader returns a [internal.RequestOption] that sets a request header
+// with the given name and value on outgoing requests.
 func RequestHeader(key, value string) RequestOption {
 	return func(req *http.Request) error {
 		req.Header.Set(key, value)
@@ -33,6 +44,7 @@ func RequestHeader(key, value string) RequestOption {
 	}
 }
 
+// Post issues a POST request to the endpoint.
 func Post[T any](ctx context.Context, client *http.Client, u *url.URL, reqBody any, opts []RequestOption) (value T, err error) {
 	var r io.Reader
 	if reqBody != nil {
@@ -85,10 +97,14 @@ func Post[T any](ctx context.Context, client *http.Client, u *url.URL, reqBody a
 	}
 }
 
+// contextKey is the type used for defining a context key.
 type contextKey struct{}
 
+// HTTPClient is the context key used to specify the HTTP client
+// used to issue the request.
 var HTTPClient contextKey
 
+// ContextClient returns an HTTP client based on the given [context.Context].
 func ContextClient(ctx context.Context) *http.Client {
 	if hc, ok := ctx.Value(HTTPClient).(*http.Client); ok {
 		return hc
@@ -96,10 +112,18 @@ func ContextClient(ctx context.Context) *http.Client {
 	return http.DefaultClient
 }
 
+// UnexpectedStatusCode returns an error describing an unexpected HTTP status code,
+// including the request method and URL for context.
+// The resp must be a client response because [http.Response.Request] is only
+// populated on responses received by the client.
 func UnexpectedStatusCode(resp *http.Response) error {
 	return fmt.Errorf("%s %s: %s", resp.Request.Method, resp.Request.URL, resp.Status)
 }
 
+// Apply applies the given RequestOptions to the request in order.
+// Caller-provided opts take precedence over any defaults appended after them.
+// For example, append caller opts before defaults like append(opts, internal.DefaultLanguage)
+// so that the caller's preferences are evaluated first.
 func Apply(req *http.Request, opts []RequestOption) error {
 	for _, opt := range opts {
 		if err := opt(req); err != nil {

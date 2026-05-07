@@ -133,7 +133,7 @@ func TestSession(t *testing.T) {
 	t.Log("Title ID:", title.DisplayClaims.TitleInfo.TitleID)
 
 	searchItems(t, pf, catalog.SearchFilter{
-		Text:  "Toy Story",
+		Term:  "Toy Story",
 		Count: 50,
 	})
 	searchItems(t, pf, catalog.SearchFilter{

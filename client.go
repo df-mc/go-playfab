@@ -51,12 +51,23 @@ func Login(ctx context.Context, t title.Title, idp IdentityProvider, config Clie
 	return client, nil
 }
 
+// RequestOption specifies an option to be applied to an outgoing HTTP request.
+//
+// Callers may accept multiple RequestOptions as a variadic or slice parameter.
+// Options must be applied to the request using [Apply].
+//
+// A RequestOption must be reusable and must not hold any per-request state.
 type RequestOption = internal.RequestOption
 
+// AcceptLanguage returns a [internal.RequestOption] that appends the given
+// language tags to the 'Accept-Language' header on outgoing requests,
+// preserving any tags already present in the header.
 func AcceptLanguage(tags []language.Tag) RequestOption {
 	return internal.AcceptLanguage(tags)
 }
 
+// RequestHeader returns a [internal.RequestOption] that sets a request header
+// with the given name and value on outgoing requests.
 func RequestHeader(key, value string) RequestOption {
 	return internal.RequestHeader(key, value)
 }
