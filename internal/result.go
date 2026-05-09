@@ -33,7 +33,7 @@ type Error struct {
 func (err Error) Error() string {
 	s := fmt.Sprintf("playfab: %d", err.Code)
 	if err.Type != "" {
-		s += "(" + err.Type + ")"
+		s += " (" + err.Type + ")"
 	}
 	if err.Message != "" {
 		s += ": " + err.Message

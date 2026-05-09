@@ -13,7 +13,7 @@ import (
 )
 
 // LoginRequest represents a base structure used for signing in to the PlayFab through a method.
-// An implementation of IdentityProvider may embed LoginConfig with additional fields required
+// An implementation of IdentityProvider may embed LoginRequest with additional fields required
 // to fill in.
 type LoginRequest struct {
 	// Title is the title ID to perform this action on.
@@ -46,7 +46,7 @@ func (l LoginRequest) Login(ctx context.Context, client *http.Client, u *url.URL
 }
 
 // LoginInfoRequest is a set of requested parameters included in LoginInfo, which can be retrieved
-// through [LoginResult.InfoResult]. Users may set LoginInfoRequest as a part of LoginConfig to include
+// through [LoginResult.InfoResult]. Users may set LoginInfoRequest as a part of LoginRequest to include
 // additional parameters while signing in to PlayFab.
 type LoginInfoRequest struct {
 }
