@@ -118,14 +118,6 @@ func ContextClient(ctx context.Context) *http.Client {
 	return http.DefaultClient
 }
 
-// UnexpectedStatusCode returns an error describing an unexpected HTTP status code,
-// including the request method and URL for context.
-// The resp must be a client response because [http.Response.Request] is only
-// populated on responses received by the client.
-func UnexpectedStatusCode(resp *http.Response) error {
-	return fmt.Errorf("%s %s: %s", resp.Request.Method, resp.Request.URL, resp.Status)
-}
-
 // Apply applies the given RequestOptions to the request in order.
 // Caller-provided opts take precedence over any defaults appended after them.
 // For example, append caller opts before defaults like append(opts, internal.DefaultLanguage)
