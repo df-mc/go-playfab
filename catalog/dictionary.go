@@ -42,6 +42,9 @@ func (d *Dictionary[T]) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, (*Alias)(d)); err != nil {
 		return err
 	}
+	if *d == nil {
+		return fmt.Errorf("invalid dictionary JSON: %s", b)
+	}
 	var hasNeutral bool
 	for key := range *d {
 		if strings.EqualFold(key, "neutral") {
@@ -52,6 +55,7 @@ func (d *Dictionary[T]) UnmarshalJSON(b []byte) error {
 			return fmt.Errorf("catalog: Dictionary: parse %q as language tag: %w", key, err)
 		}
 	}
+	// The neutral key is required for all dictionaries.
 	if !hasNeutral {
 		return errors.New("catalog: Dictionary: no value was found for neutral")
 	}
