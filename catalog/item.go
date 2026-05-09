@@ -238,10 +238,10 @@ type KeywordSet []string
 
 // MarshalJSON implements [json.Marshaler] for KeywordSet,
 // encoding it as a JSON object with a "Values" field as required by the PlayFab API.
-func (s *KeywordSet) MarshalJSON() ([]byte, error) {
+func (s KeywordSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Values []string
-	}{Values: *s})
+	}{Values: s})
 }
 
 // UnmarshalJSON implements [json.Unmarshaler] for KeywordSet,
