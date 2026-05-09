@@ -73,12 +73,6 @@ func Post[T any](ctx context.Context, client *http.Client, u *url.URL, reqBody a
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		buf := &bytes.Buffer{}
-		if _, err := buf.ReadFrom(resp.Body); err != nil {
-			return value, fmt.Errorf("read response body: %w", err)
-		}
-		resp.Body = io.NopCloser(buf)
-
 		var result Result[T]
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 			return value, fmt.Errorf("decode response body: %w", err)
