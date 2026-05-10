@@ -25,12 +25,12 @@ type RequestOption func(req *http.Request) error
 // language tags to the 'Accept-Language' header on outgoing requests,
 // preserving any tags already present in the header.
 func AcceptLanguage(tags []language.Tag) RequestOption {
-	s := make([]string, len(tags))
-	for i, tag := range tags {
+	s := make([]string, 0, len(tags))
+	for _, tag := range tags {
 		if tag == language.Und {
 			continue
 		}
-		s[i] = tag.String()
+		s = append(s, tag.String())
 	}
 	return func(req *http.Request) error {
 		req.Header.Add("Accept-Language", strings.Join(s, ", "))
