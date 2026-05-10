@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -31,20 +32,24 @@ func Login(ctx context.Context, t title.Title, idp IdentityProvider, config Clie
 		title:  t,
 		config: config,
 
-		idp:    idp,
-		closed: make(chan struct{}),
+		idp: idp,
 	}
 	result, err := client.login(ctx)
 	if err != nil {
 		return nil, err
 	}
 	client.newlyCreated = result.NewlyCreated
-	clientCtx := context.WithValue(&clientContext{client}, internal.HTTPClient, client.client)
-	client.titlePlayerAccount = entity.ExchangeTokenSource(clientCtx, t, result.EntityToken, result.EntityToken.Entity, config.Logger)
-	client.masterPlayerAccount = entity.ExchangeTokenSource(clientCtx, t, result.EntityToken, entity.Key{
+	client.ctx, client.cancel = context.WithCancelCause(context.Background())
+	tokenCtx := context.WithValue(client.ctx, internal.HTTPClient, client.client)
+	client.titlePlayerAccount = entity.ExchangeTokenSource(tokenCtx, t, result.EntityToken, result.EntityToken.Entity, config.Logger)
+	client.masterPlayerAccount = entity.ExchangeTokenSource(tokenCtx, t, result.EntityToken, entity.Key{
 		Type: entity.TypeMasterPlayerAccount,
 		ID:   result.PlayFabID,
 	}, config.Logger)
+
+	// Not a smart way but we can at least check if the background task is dead.
+	go client.background(client.titlePlayerAccount.Context())
+	go client.background(client.masterPlayerAccount.Context())
 
 	client.catalog = catalog.New(client.client, t, client.MasterPlayerAccount())
 
@@ -91,8 +96,18 @@ type Client struct {
 
 	newlyCreated bool
 
-	closed chan struct{}
+	ctx    context.Context
+	cancel context.CancelCauseFunc
 	once   sync.Once
+}
+
+func (c *Client) background(ctx context.Context) {
+	select {
+	case <-ctx.Done():
+		c.cancel(context.Cause(ctx))
+	case <-c.ctx.Done():
+		return
+	}
 }
 
 // TitlePlayerAccount returns an [entity.TokenSource] that supplies entity tokens for [entity.TypeTitlePlayerAccount].
@@ -173,38 +188,18 @@ const (
 // Close closes the Client. Once the Client is closed, the entity tokens are no longer
 // exchanged in background as the internal context is closed.
 func (c *Client) Close() (err error) {
+	return c.close(net.ErrClosed)
+}
+
+func (c *Client) close(cause error) (err error) {
 	c.once.Do(func() {
-		close(c.closed)
+		if cause == nil {
+			cause = net.ErrClosed
+		}
+		c.config.Logger.Debug("client is closing", slog.Any("cause", cause))
+		c.cancel(cause)
 	})
-	return nil
-}
-
-// clientContext implements [context.Context] backed by a Client's lifetime.
-type clientContext struct{ *Client }
-
-// Deadline always returns zero time.
-func (clientContext) Deadline() (deadline time.Time, ok bool) {
-	return
-}
-
-// Done returns a channel that is closed when the Client is no longer usable.
-func (ctx clientContext) Done() <-chan struct{} {
-	return ctx.closed
-}
-
-// Err returns [context.Cancaled] if the underlying Client is closed. Returns nil otherwise.
-func (ctx clientContext) Err() error {
-	select {
-	case <-ctx.Done():
-		return context.Canceled
-	default:
-		return nil
-	}
-}
-
-// Value always returns nil for any key.
-func (clientContext) Value(any) any {
-	return nil
+	return err
 }
 
 // IdentityProvider is the interface for logging in to a PlayFab account through

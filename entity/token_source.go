@@ -13,6 +13,7 @@ import (
 
 type TokenSource interface {
 	EntityToken(ctx context.Context) (*Token, error)
+	Context() context.Context
 }
 
 func ExchangeTokenSource(ctx context.Context, title title.Title, token *Token, key Key, log *slog.Logger) TokenSource {
@@ -23,7 +24,7 @@ func ExchangeTokenSource(ctx context.Context, title title.Title, token *Token, k
 		log = slog.Default()
 	}
 
-	r := &reuseTokenSource{
+	r := &exchangeTokenSource{
 		title: title,
 		key:   key,
 
@@ -37,7 +38,7 @@ func ExchangeTokenSource(ctx context.Context, title title.Title, token *Token, k
 	return r
 }
 
-type reuseTokenSource struct {
+type exchangeTokenSource struct {
 	title title.Title
 	key   Key
 
@@ -49,7 +50,11 @@ type reuseTokenSource struct {
 	mu sync.Mutex
 }
 
-func (r *reuseTokenSource) background(cancel context.CancelCauseFunc) {
+func (r *exchangeTokenSource) Context() context.Context {
+	return r.ctx
+}
+
+func (r *exchangeTokenSource) background(cancel context.CancelCauseFunc) {
 	r.mu.Lock()
 	exp := r.t.Expiration
 	r.mu.Unlock()
@@ -75,7 +80,7 @@ func (r *reuseTokenSource) background(cancel context.CancelCauseFunc) {
 	}
 }
 
-func (r *reuseTokenSource) EntityToken(ctx context.Context) (*Token, error) {
+func (r *exchangeTokenSource) EntityToken(ctx context.Context) (*Token, error) {
 	if r.ctx.Err() != nil {
 		return nil, context.Cause(r.ctx)
 	}
