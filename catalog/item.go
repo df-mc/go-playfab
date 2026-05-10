@@ -61,7 +61,7 @@ type Item struct {
 	LastModifiedDate time.Time
 
 	// ID is the unique ID of the item.
-	ID uuid.UUID `json:"Id"`
+	ID string `json:"Id"`
 
 	// Images is the set of images associated with this item.
 	// Images can be thumbnails or screenshots.

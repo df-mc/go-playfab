@@ -9,7 +9,6 @@ import (
 	"github.com/df-mc/go-playfab/entity"
 	"github.com/df-mc/go-playfab/internal"
 	"github.com/df-mc/go-playfab/title"
-	"github.com/google/uuid"
 	"golang.org/x/text/language"
 )
 
@@ -44,7 +43,7 @@ func (c *Client) SearchItems(ctx context.Context, filter SearchFilter, opts ...i
 }
 
 // ItemByID retrieves an Item by the ID.
-func (c *Client) ItemByID(ctx context.Context, id uuid.UUID, opts ...internal.RequestOption) (*Item, error) {
+func (c *Client) ItemByID(ctx context.Context, id string, opts ...internal.RequestOption) (*Item, error) {
 	resp, err := internal.Post[*itemResponse](
 		ctx,
 		c.client,
@@ -74,8 +73,8 @@ type (
 		CustomTags map[string]any `json:",omitempty"`
 		// Entity specifies whose perspective is used for querying an Item.
 		Entity entity.Key `json:",omitzero"`
-		// ID is the UUID associated with the Item.
-		ID uuid.UUID `json:"Id"`
+		// ID is the identifier associated with the Item.
+		ID string `json:"Id"`
 	}
 	// itemResponse represents a successful response for [Client.ItemByID].
 	itemResponse struct {

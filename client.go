@@ -39,7 +39,7 @@ func Login(ctx context.Context, t title.Title, idp IdentityProvider, config Clie
 		return nil, err
 	}
 	client.newlyCreated = result.NewlyCreated
-	clientCtx := &clientContext{client}
+	clientCtx := context.WithValue(&clientContext{client}, internal.HTTPClient, client.client)
 	client.titlePlayerAccount = entity.ExchangeTokenSource(clientCtx, t, result.EntityToken, result.EntityToken.Entity, config.Logger)
 	client.masterPlayerAccount = entity.ExchangeTokenSource(clientCtx, t, result.EntityToken, entity.Key{
 		Type: entity.TypeMasterPlayerAccount,
