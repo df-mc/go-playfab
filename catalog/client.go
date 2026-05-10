@@ -6,9 +6,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/df-mc/go-playfab/entity"
-	"github.com/df-mc/go-playfab/internal"
-	"github.com/df-mc/go-playfab/title"
+	"github.com/df-mc/go-playfab/v2/entity"
+	"github.com/df-mc/go-playfab/v2/internal"
+	"github.com/df-mc/go-playfab/v2/title"
 	"golang.org/x/text/language"
 )
 

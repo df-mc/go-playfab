@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/df-mc/go-playfab/internal"
-	"github.com/df-mc/go-playfab/title"
+	"github.com/df-mc/go-playfab/v2/internal"
+	"github.com/df-mc/go-playfab/v2/title"
 )
 
 // A Token represents an entity token that can be used for authenticating as an entity

@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/df-mc/go-playfab/entity"
-	"github.com/df-mc/go-playfab/internal"
-	"github.com/df-mc/go-playfab/title"
+	"github.com/df-mc/go-playfab/v2/entity"
+	"github.com/df-mc/go-playfab/v2/internal"
+	"github.com/df-mc/go-playfab/v2/title"
 )
 
 // LoginRequest represents a base structure used for signing in to the PlayFab through a method.

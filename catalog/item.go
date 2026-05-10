@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/df-mc/go-playfab/entity"
+	"github.com/df-mc/go-playfab/v2/entity"
 )
 
 // Item represents a catalog item in the PlayFab Economy v2 catalog.

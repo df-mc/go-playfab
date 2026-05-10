@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/df-mc/go-playfab/title"
+	"github.com/df-mc/go-playfab/v2/title"
 	"github.com/df-mc/go-xsapi/v2"
 )
 
