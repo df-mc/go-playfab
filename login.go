@@ -59,7 +59,7 @@ type LoginResult struct {
 	// so you may exchange it with [entity.Token.Exchange] with PlayFabID.
 	EntityToken *entity.Token
 	// InfoResult is the additional data requested by the [LoginRequest.InfoParameters].
-	InfoResult LoginInfo
+	InfoResult LoginInfo `json:"InfoResultPayload"`
 	// LastLoginTime is the time of previous login. If there was no previous login, it is zero [time.Time].
 	LastLoginTime time.Time
 	// NewlyCreated is true if the account was newly created on login.
