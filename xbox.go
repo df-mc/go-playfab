@@ -23,6 +23,9 @@ type XBLIdentityProvider struct {
 
 // Login ...
 func (i XBLIdentityProvider) Login(ctx context.Context, client *http.Client, request LoginRequest) (*LoginResult, error) {
+	if i.Client == nil {
+		panic("playfab: XBLIdentityProvider.Client cannot be nil")
+	}
 	requestURL := request.Title.URL().JoinPath("/Client/LoginWithXbox")
 	token, _, err := i.Client.TokenAndSignature(ctx, requestURL)
 	if err != nil {
