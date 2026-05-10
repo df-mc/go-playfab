@@ -128,9 +128,8 @@ func (c *Client) Catalog() *catalog.Client {
 // LoginInfo returns the supplementary information from the most recent login result.
 func (c *Client) LoginInfo() LoginInfo {
 	c.loginMu.RLock()
-	lastLogin := c.loginResult.InfoResult
-	c.loginMu.RUnlock()
-	return lastLogin
+	defer c.loginMu.RUnlock()
+	return c.loginResult.InfoResult
 }
 
 // NewlyCreated reports whether a PlayFab account was newly created during the initial login.
@@ -141,9 +140,8 @@ func (c *Client) NewlyCreated() bool {
 // LastLoginTime returns the time of the caller's most recent previous login.
 func (c *Client) LastLoginTime() time.Time {
 	c.loginMu.RLock()
-	lastLogin := c.loginResult.LastLoginTime
-	c.loginMu.RUnlock()
-	return lastLogin
+	defer c.loginMu.RUnlock()
+	return c.loginResult.LastLoginTime
 }
 
 // SessionTicket returns the session ticket from the current login result.
@@ -156,6 +154,16 @@ func (c *Client) SessionTicket(ctx context.Context) (string, error) {
 	}
 	return result.SessionTicket, nil
 }
+
+const (
+	// loginExpiration is the duration after which a LoginResult is considered expired.
+	// The Client records the timestamp of each login and uses this duration together
+	// with loginExpirationDelta to determine whether a cached LoginResult is still valid.
+	loginExpiration = time.Hour * 24
+	// loginExpirationDelta is subtracted from loginExpiration to add a safety margin
+	// when deciding whether a cached login result should be refreshed.
+	loginExpirationDelta = time.Minute * 15
+)
 
 // login authenticates with PlayFab using the Client's identity provider.
 // Results are cached internally and reused until they expire.
@@ -175,22 +183,13 @@ func (c *Client) login(ctx context.Context) (*LoginResult, error) {
 	return result, nil
 }
 
-const (
-	// loginExpiration is the duration after which a LoginResult is considered expired.
-	// The Client records the timestamp of each login and uses this duration together
-	// with loginExpirationDelta to determine whether a cached LoginResult is still valid.
-	loginExpiration = time.Hour * 24
-	// loginExpirationDelta is subtracted from loginExpiration to add a safety margin
-	// when deciding whether a cached login result should be refreshed.
-	loginExpirationDelta = time.Minute * 15
-)
-
 // Close closes the Client. Once the Client is closed, the entity tokens are no longer
 // exchanged in background as the internal context is closed.
 func (c *Client) Close() (err error) {
 	return c.close(net.ErrClosed)
 }
 
+// close cancels the background context with the provided cause.
 func (c *Client) close(cause error) (err error) {
 	c.once.Do(func() {
 		if cause == nil {

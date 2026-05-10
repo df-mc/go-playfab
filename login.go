@@ -49,6 +49,7 @@ func (l LoginRequest) Login(ctx context.Context, client *http.Client, u *url.URL
 // through [LoginResult.InfoResult]. Users may set LoginInfoRequest as a part of LoginRequest to include
 // additional parameters while signing in to PlayFab.
 type LoginInfoRequest struct {
+	// TODO: Add more fields when it is actually required
 }
 
 // LoginResult a session identity that can subsequently be used for API which requires an authentication.
@@ -79,4 +80,5 @@ func (r *LoginResult) Valid() bool {
 
 // LoginInfo represents the additional data requested by LoginInfoRequest.
 type LoginInfo struct {
+	// TODO: Add more fields when it is actually required
 }
