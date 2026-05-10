@@ -37,7 +37,7 @@ func (c *Client) SearchItems(ctx context.Context, filter SearchFilter, opts ...i
 		filter,
 		append(opts,
 			entity.RequestOption(c.src),
-			internal.AcceptLanguage(internal.DefaultLanguage),
+			internal.AcceptLanguage(append([]language.Tag{filter.Language}, internal.DefaultLanguage...)),
 		),
 	)
 }
@@ -104,7 +104,7 @@ type (
 		// Language is the locale to be included in the dictionary of Items returned in
 		// the SearchResult. It is also used as an 'Accept-Language' header of the request
 		// sent from [SearchResult.Search].
-		Language language.Tag `json:",omitempty"`
+		Language language.Tag `json:",omitzero"`
 		// OrderBy is an OData sort query for sorting the index of SearchResult. Defaulted to relevance.
 		OrderBy string `json:",omitempty"` // OData query
 		// Term is the string terms to be searched.

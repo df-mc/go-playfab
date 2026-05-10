@@ -27,6 +27,9 @@ type RequestOption func(req *http.Request) error
 func AcceptLanguage(tags []language.Tag) RequestOption {
 	s := make([]string, len(tags))
 	for i, tag := range tags {
+		if tag == language.Und {
+			continue
+		}
 		s[i] = tag.String()
 	}
 	return func(req *http.Request) error {
