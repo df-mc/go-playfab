@@ -3,67 +3,98 @@ package entity
 import (
 	"context"
 	"fmt"
-	"github.com/df-mc/go-playfab/title"
+	"log/slog"
 	"sync"
 	"time"
+
+	"github.com/df-mc/go-playfab/v2/internal"
+	"github.com/df-mc/go-playfab/v2/title"
 )
 
 type TokenSource interface {
-	Token() (*Token, error)
+	EntityToken(ctx context.Context) (*Token, error)
+	Context() context.Context
 }
 
-func ExchangeTokenSource(ctx context.Context, tok *Token, t title.Title, masterID string) TokenSource {
-	src := &exchangeTokenSource{
-		tok: tok,
-
-		title:    t,
-		masterID: masterID,
+func ExchangeTokenSource(ctx context.Context, title title.Title, token *Token, key Key, log *slog.Logger) TokenSource {
+	if token == nil {
+		panic("entity: ReuseTokenSource: *entity.Token cannot be nil")
 	}
-	go src.background(ctx)
-	return src
+	if log == nil {
+		log = slog.Default()
+	}
+
+	r := &exchangeTokenSource{
+		title: title,
+		key:   key,
+
+		log: log,
+
+		t: token,
+	}
+	var cancel context.CancelCauseFunc
+	r.ctx, cancel = context.WithCancelCause(context.WithValue(ctx, internal.HTTPClient, internal.ContextClient(ctx)))
+	go r.background(cancel)
+	return r
 }
 
 type exchangeTokenSource struct {
-	tok *Token
-	err error
+	title title.Title
+	key   Key
 
-	mux      sync.Mutex
-	title    title.Title
-	masterID string
+	log *slog.Logger
+
+	ctx context.Context
+
+	t  *Token
+	mu sync.Mutex
 }
 
-func (src *exchangeTokenSource) background(ctx context.Context) {
-	t := time.NewTicker(time.Minute * 15)
-	defer t.Stop()
+func (r *exchangeTokenSource) Context() context.Context {
+	return r.ctx
+}
+
+func (r *exchangeTokenSource) background(cancel context.CancelCauseFunc) {
+	r.mu.Lock()
+	exp := r.t.Expiration
+	r.mu.Unlock()
+
 	for {
 		select {
-		case <-t.C:
-			src.mux.Lock()
-			src.tok, src.err = src.tok.Exchange(src.title, src.masterID)
-			if src.err != nil {
-				src.mux.Unlock()
+		case <-time.After(time.Until(exp.Add(-time.Minute * 20))):
+			r.mu.Lock()
+			token, err := r.t.Exchange(r.ctx, r.title, r.key)
+			if err != nil {
+				r.mu.Unlock()
+				r.log.Error("error exchanging token", slog.Any("error", err))
+				cancel(fmt.Errorf("exchange token in background: %w", err))
 				return
 			}
-			src.mux.Unlock()
-		case <-ctx.Done():
+			r.t = token
+			exp = token.Expiration
+			r.mu.Unlock()
+			r.log.Debug("exchanged entity token in background", slog.Any("entity", r.key))
+		case <-r.ctx.Done():
 			return
 		}
 	}
 }
 
-func (src *exchangeTokenSource) Token() (tok *Token, err error) {
-	src.mux.Lock()
-	defer src.mux.Unlock()
-	if src.err != nil {
-		return nil, fmt.Errorf("exchange token in background: %w", err)
+func (r *exchangeTokenSource) EntityToken(ctx context.Context) (*Token, error) {
+	if r.ctx.Err() != nil {
+		return nil, context.Cause(r.ctx)
 	}
 
-	if src.tok.Expired() || src.tok.Entity.Type != TypeMasterPlayerAccount {
-		tok, err = src.tok.Exchange(src.title, src.masterID)
-		if err != nil {
-			return nil, fmt.Errorf("exchange: %w", err)
-		}
-		src.tok = tok
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.t.Entity == r.key && r.t.Valid() {
+		return r.t, nil
 	}
-	return src.tok, nil
+
+	token, err := r.t.Exchange(ctx, r.title, r.key)
+	if err != nil {
+		return nil, fmt.Errorf("exchange: %w", err)
+	}
+	r.t = token
+	return token, nil
 }

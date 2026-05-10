@@ -2,297 +2,314 @@ package catalog
 
 import (
 	"encoding/json"
-	"github.com/df-mc/go-playfab/entity"
 	"time"
+
+	"github.com/df-mc/go-playfab/v2/entity"
 )
 
+// Item represents a catalog item in the PlayFab Economy v2 catalog.
+// It contains metadata, localized content, pricing, and other properties
+// associated with a purchasable or displayable entity in the catalog.
+//
+// See: https://learn.microsoft.com/en-us/rest/api/playfab/economy/catalog/get-item?view=playfab-rest#catalogitem
 type Item struct {
-	// AlternateIDs is the alternate IDs associated with the Item. An alternate
-	// ID can be set to 'FriendlyId' or any of the supported marketplace names.
-	AlternateIDs []AlternateID `json:"AlternateIds,omitempty"`
-	// ContentType is the client-defined type of the Item.
-	ContentType string `json:"ContentType,omitempty"`
-	// Contents is the set of content/files associated with the Item. Up to 100
-	// files can be added to an Item. In Minecraft, it includes a set of URL for 'XForge'
-	// where it contains a ZIP file containing a set of encrypted packs.
-	Contents []Content `json:"Contents,omitempty"`
-	// CreationDate is the date and time when the Item was created.
-	CreationDate time.Time `json:"CreationDate,omitempty"`
-	// CreatorEntity is the [entity.Key] of the creator of the Item.
-	CreatorEntity entity.Key `json:"CreatorEntity,omitempty"`
-	// DeepLinks is the set of platform specific deep links for the Item.
-	DeepLinks []DeepLink `json:"DeepLinks,omitempty"`
-	// DefaultStackID is the stack ID that will be used as default for the Item
-	// in inventory when an explicit one is not provided. The DefaultStackID can be
-	// a static stack ID or '{GUID}', which will generate a unique stack ID for the
-	// Item. If empty, inventory's default stack ID will be used.
-	DefaultStackID string `json:"DefaultStackId,omitempty"`
-	// Description is a Dictionary of localized descriptions. Descriptions have
-	// a 10000-character limit per country code.
-	Description Dictionary[string] `json:"Description,omitempty"`
-	// DisplayProperties is a game-specific properties for display purposes. It is
-	// an arbitrary JSON blob. The fields of DisplayProperties has a 10000-byte
-	// limit per Item. In Minecraft, it contains the name of creator, whether
-	// the Item is purchasable, a URL of video trailer, prices, address and port of
-	// server (If ContentType is '3PP' or '3PP_V2.0').
-	DisplayProperties map[string]json.RawMessage `json:"DisplayProperties,omitempty"`
-	// DisplayVersion is the user-provided version of the Item for display
-	// purposes. It has a maximum character length of 50.
-	DisplayVersion string `json:"DisplayVersion,omitempty"`
-	// ETag is the current ETag value that can be used for optimistic
-	// concurrency in the 'If-None-Match' header.
-	ETag string `json:"ETag,omitempty"`
-	// EndDate is the date of when the Item will cease to be available. If left
-	// a zero [time.Time] then the product will be available indefinitely.
-	EndDate time.Time `json:"EndDate,omitempty"`
-	// ID is the unique ID of the Item. It can be specified to [Query.ID].
-	ID string `json:"Id,omitempty"`
-	// Images is the images associated with the Item. Images can be thumbnails
-	// or screenshots. Up to 100 images can be added to an Item. Only .png, .jpg,
-	// .gif, and .bmp file types can be uploaded.
-	Images []Image `json:"Images,omitempty"`
-	// Hidden indicates if the Item is hidden.
-	Hidden bool `json:"IsHidden,omitempty"`
-	// ItemReferences is the item references associated with the Item. Every Item
-	// can have up to 50 item references.
-	ItemReferences []ItemReference `json:"ItemReferences,omitempty"`
-	// Keywords is a Dictionary of localized keywords. Keywords have a 50-character
-	// limit per keyword and up to 32 keywords can be added per country code.
-	Keywords Dictionary[*Keyword] `json:"Keywords,omitempty"`
-	// LastModifiedDate is the date and time the Item was last updated.
-	LastModifiedDate time.Time `json:"LastModifiedDate,omitempty"`
-	// Moderation is the moderation state for the Item.
-	Moderation ModerationState `json:"Moderation,omitempty"`
-	// Platforms is the platforms supported by the Item.
-	Platforms []string `json:"Platforms,omitempty"`
-	// PriceOptions is the prices the Item can be purchased for.
-	PriceOptions PriceOptions `json:"PriceOptions,omitempty"`
-	// Rating s the rating summary for the Item.
-	Rating Rating `json:"Rating,omitempty"`
-	// StartDate is the date of when the Item will be available. If left as
-	// a zero [time.Time] then the product will appear immediately.
-	StartDate time.Time `json:"StartDate,omitempty"`
-	// StoreDetails is an optional details for stores items.
-	StoreDetails StoreDetails `json:"StoreDetails,omitempty"`
-	// Tags is the list of tags that are associated with the Item. Up to 32 tags
-	// can be added to an Item.
-	Tags []string `json:"Tags,omitempty"`
-	// Title is a Dictionary of localized titles. Titles have a 512-character limit
-	// per country code.
-	Title Dictionary[string] `json:"Title,omitempty"`
-	// Type is the high-level type of the Item. It is one of constants defined below.
-	Type string `json:"Type,omitempty"`
-}
+	// AlternateIDs is the list of alternate IDs associated with this item.
+	AlternateIDs []AlternateID `json:"AlternateIds"`
+	// ContentType is the title-defined type of the item.
+	ContentType string
+	// Contents is the set of content/files associated with this item.
+	// Up to 100 files can be added to an item.
+	Contents []Content
+	// CreatorEntity is the entity key identifying the creator of this catalog item.
+	CreatorEntity entity.Key
+	// DeepLinks is the set of platform-specific deep links for this item.
+	DeepLinks []DeepLink
+	// DefaultStackID is the stack ID used as default for this item in Inventory
+	// when an explicit one is not provided. It can be a static stack ID or '{guid}',
+	// which generates a unique stack ID for the item. If empty, Inventory's
+	// default stack ID will be used.
+	DefaultStackID string
 
-type StoreReference struct {
-	AlternateID AlternateID `json:"AlternateId,omitempty"`
-	ID          string      `json:"Id,omitempty"`
-}
+	// Title is a dictionary of localized titles for this item.
+	// Key is a language code and the value is the localized string.
+	// Each title has a 512 character limit per locale.
+	Title Dictionary[string]
+	// Description is a dictionary of localized descriptions for this item.
+	// Key is a language code and the value is the localized string.
+	// Each description has a 10000 character limit per locale.
+	Description Dictionary[string]
+	// DisplayProperties contains game-specific properties for display purposes.
+	// This is an arbitrary JSON blob with a 10000 byte limit per item.
+	DisplayProperties json.RawMessage
+	// DisplayVersion is the user-provided version of the item for display purposes.
+	// Maximum character length is 50.
+	DisplayVersion string
+	// ETag is the current ETag value that can be used for optimistic concurrency
+	// in the If-None-Match header.
+	ETag string
 
-type AlternateID struct {
-	Type  string `json:"Type,omitempty"`
-	Value string `json:"Value,omitempty"`
-}
+	// CreationDate is the date and time when this item was created.
+	CreationDate time.Time
+	// StartDate is the date when the item will become available.
+	// If not provided, the item will appear immediately in the catalog.
+	StartDate time.Time
+	// EndDate is the date when the item will cease to be available.
+	// If not provided, the item will be available indefinitely.
+	EndDate time.Time
+	// LastModifiedDate is the date and time when this item was last updated.
+	LastModifiedDate time.Time
 
-type Content struct {
-	// ID is the unique ID of the Content.
-	ID string `json:"Id,omitempty"`
-	// MaxClientVersion is the maximum client version that the Content is
-	// compatible with. Client Versions can be up to 3 segments separated
-	// by periods (.) and each segment can have a maximum value of 65535.
-	MaxClientVersion string `json:"MaxClientVersion,omitempty"`
-	// MinClientVersion is the minimum client version that the Content is
-	// compatible with. Client Versions can be up to 3 segments separated
-	// by periods (.) and each segment can have a maximum value of 65535.
-	MinClientVersion string `json:"MinClientVersion,omitempty"`
-	// Tags is the list of tags that are associated with the Content. Tags
-	// must be defined in the Catalog Config before being used in Content.
-	Tags []string `json:"Tags,omitempty"`
-	// Type is the client-defined type of the Content. Types must be defined
-	// in the Catalog Config before being used.
-	Type string `json:"Type,omitempty"`
-	// URL is the Azure CDN URL for retrieval of the Item binary content.
-	// In Minecraft (and some other games), It is a URL for XForge asset.
-	URL string `json:"Url,omitempty"`
-}
+	// ID is the unique ID of the item.
+	ID string `json:"Id"`
 
-type DeepLink struct {
-	// Platform is the target platform for the DeepLink.
-	Platform string `json:"Platform,omitempty"`
-	// URL is the deep link for the Platform.
-	URL string `json:"Url,omitempty"`
-}
+	// Images is the set of images associated with this item.
+	// Images can be thumbnails or screenshots.
+	// Up to 100 images can be added to an item.
+	// Only .png, .jpg, .gif, and .bmp file types can be uploaded.
+	Images []Image
+	// Hidden indicates whether the item is currently hidden from the catalog.
+	Hidden bool `json:"IsHidden"`
+	// ItemReferences is the list of item references associated with this item,
+	// such as the items contained in a Bundle, Store, or Subscription.
+	// Every item can have up to 50 item references.
+	ItemReferences []ItemReference
 
-type Image struct {
-	// ID is the unique ID of the Image.
-	ID string `json:"Id,omitempty"`
-	// Tag is the client-defined tag associated with the Image. Tags must be
-	// in the Catalog Config before being used in Image.
-	Tag string `json:"Tag,omitempty"`
-	// Type is the type of the Image. It is one of constants defined below.
-	// There can only be one Image of ImageTypeThumbnail per Item.
-	Type string `json:"Type,omitempty"`
-	// URL is the URL for retrieval of the Image.
-	URL string `json:"Url,omitempty"`
+	// Keywords is a dictionary of localized keywords associated with this item.
+	// Key is a language code and the value is the localized list of keywords.
+	// Keywords have a 50 character limit each, and up to 32 keywords can be added per locale.
+	Keywords Dictionary[KeywordSet]
+
+	// Moderation is the moderation state for this item.
+	// It is typically used for community-provided (UGC) items.
+	Moderation ModerationState
+	// Platforms lists the platforms supported by this item.
+	Platforms []string
+
+	// PriceOptions contains the prices this item can be purchased for.
+	// An item can have up to 15 prices.
+	PriceOptions PriceOptions
+
+	// Rating is the rating summary for this item.
+	Rating Rating
+	// RealMoneyPrices contains the real-money prices for this item, scoped per
+	// marketplace platform. Each entry is a map from ISO 4217 currency code to
+	// the price in the smallest currency unit (e.g. cents). Currently, only USD is supported.
+	RealMoneyPrices RealMoneyPrices `json:"RealMoneyPriceDetails"`
+
+	// Tags is the list of tags associated with this item.
+	// Up to 32 tags can be added to an item.
+	Tags []string
+	// Type is the high-level type of the item.
+	// It can be one of the constants prefixed with ItemType* defined below.
+	Type string
 }
 
 const (
-	ImageTypeThumbnail  = "thumbnail"
+	// ItemTypeCatalogItem is the item type for standard catalog items available for purchase.
+	ItemTypeCatalogItem = "catalogItem"
+	// ItemTypeCurrency is the item type representing an in-game currency.
+	// e.g. in Minecraft, this is used to represent Minecoins.
+	ItemTypeCurrency = "currency"
+	// ItemTypeStore is the item type for a store.
+	// A store holds a list of items and prices, and can override the base catalog prices for those items.
+	ItemTypeStore = "store"
+	// ItemTypeUserGeneratedContent is the item type for user-generated content (UGC).
+	ItemTypeUserGeneratedContent = "ugc"
+	// ItemTypeSubscription is the item type for subscription items.
+	// e.g. in Minecraft, this is used to represent Realms plans.
+	ItemTypeSubscription = "subscription"
+)
+
+// AlternateID describes an alternate ID associated with a catalog item.
+type AlternateID struct {
+	// Type is the type of the alternate ID. It can be 'FriendlyId' or any other marketplace names.
+	Type string
+	// Value is the value of the alternate ID.
+	Value string
+}
+
+// Content represents a file or binary content associated with a catalog item.
+type Content struct {
+	// ID is the unique ID of this content entry.
+	ID string `json:"Id"`
+	// MaxClientVersion is the maximum client version this content is compatible with.
+	// Versions follow semantic versioning with up to 3 dot-separated segments (e.g. "1.2.3"),
+	// where each segment can be at most 65535.
+	MaxClientVersion string
+	// MinClientVersion is the minimum client version this content is compatible with.
+	// Versions follow semantic versioning with up to 3 dot-separated segments (e.g. "1.2.3"),
+	// where each segment can be at most 65535.
+	MinClientVersion string
+	// Tags is the list of tags associated with this content.
+	Tags []string
+	// Type is the title-defined type of this content.
+	Type string
+	// URL is the Azure CDN URL for retrieval of the binary content.
+	URL string `json:"Url"`
+}
+
+// DeepLink represents a platform-specific deep link associated with a catalog item.
+type DeepLink struct {
+	// Platform is the target platform for this deep link.
+	Platform string
+	// URL is the deep link URL for the target platform.
+	URL string `json:"Url"`
+}
+
+// Image represents an image associated with a catalog item.
+// Images can be defined as either a thumbnail or a screenshot.
+// There can only be one thumbnail image per item.
+// Only .png, .jpg, .gif, and .bmp file types can be uploaded.
+type Image struct {
+	// ID is the unique ID of this image.
+	ID string `json:"Id"`
+	// Tag is the title-defined tag associated with this image.
+	Tag string
+	// Type indicates whether this image is a thumbnail or a screenshot.
+	// It can be one of the constants prefixed with ImageType* defined below.
+	Type string
+	// URL is the URL for retrieval of this image.
+	URL string `json:"Url"`
+}
+
+const (
+	// ImageTypeThumbnail is the image type for a thumbnail image.
+	// Only one thumbnail image is allowed per catalog item.
+	ImageTypeThumbnail = "thumbnail"
+	// ImageTypeScreenshot is the image type for a screenshot image.
 	ImageTypeScreenshot = "screenshot"
 )
 
+// ItemReference represents a reference to another catalog item.
+// It is used within bundles, stores, and subscriptions to list contained items.
 type ItemReference struct {
-	// Amount is the amount of the catalog Item.
-	Amount int `json:"Amount,omitempty"`
-	// ID is the unique ID of the catalog Item.
-	ID string `json:"Id,omitempty"`
-	// PriceOptions is the prices that the Item referenced in the
-	// ID can be purchased for.
-	PriceOptions PriceOptions `json:"PriceOptions,omitempty"`
+	// Amount is the quantity of the referenced catalog item.
+	Amount int
+	// ID is the unique ID of the referenced catalog item.
+	ID string `json:"Id"`
+	// PriceOptions contains the prices at which the referenced item can be purchased.
+	PriceOptions PriceOptions
 }
 
+// PriceOptions is the list of prices a catalog item can be purchased for.
+// An item can have up to 15 prices.
 type PriceOptions []Price
 
-func (opts PriceOptions) MarshalJSON() ([]byte, error) {
-	type raw struct {
-		Prices []Price `json:"Prices,omitempty"`
-	}
-	return json.Marshal(raw{Prices: opts})
+// MarshalJSON implements [json.Marshaler] for PriceOptions,
+// encoding it as a JSON object with a "Prices" field as required by the PlayFab API.
+func (p *PriceOptions) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Prices []Price
+	}{Prices: *p})
 }
 
-func (opts *PriceOptions) UnmarshalJSON(b []byte) error {
-	var raw struct {
-		Prices []Price `json:"Prices,omitempty"`
-	}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	*opts = raw.Prices
-	return nil
+// UnmarshalJSON implements [json.Unmarshaler] for PriceOptions,
+// decoding it from a JSON object with a "Prices" field as returned by the PlayFab API.
+func (p *PriceOptions) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &struct {
+		Prices *[]Price
+	}{Prices: (*[]Price)(p)})
 }
 
+// Price represents a single purchasable price for a catalog item.
 type Price struct {
-	// Amounts is the amounts of the Price. Each Price can have up to
-	// 15 amounts.
-	Amounts []PriceAmount `json:"Amounts,omitempty"`
-	// UnitAmount is the per-unit amount the Price can be used to purchase.
-	UnitAmount int `json:"UnitAmount,omitempty"`
-	// UnitDurationInSeconds is the per-unit duration the Price can be used
-	// to purchase. The maximum duration is 100 years.
-	UnitDurationInSeconds int `json:"UnitDurationInSeconds,omitempty"`
+	// Amounts is the list of currency amounts required for this price.
+	// Each price can have up to 15 item amounts.
+	Amounts []PriceAmount
+	// UnitAmount is the per-unit quantity this price allows the player to purchase.
+	UnitAmount int
+	// UnitDurationInSeconds is the per-unit duration this price allows the player to purchase.
+	// The maximum duration is 100 years.
+	UnitDurationInSeconds int
 }
 
+// PriceAmount represents a single currency component of a price.
 type PriceAmount struct {
-	Amount int    `json:"Amount,omitempty"`
-	ItemID string `json:"ItemId,omitempty"`
+	// Value is the amount of currency required.
+	Value int `json:"Amount"`
+	// ItemID is the ID of the catalog item used as currency for this amount.
+	ItemID string `json:"ItemId"`
 }
 
-type Keyword []string
+// KeywordSet is a list of localized keywords associated with a catalog item.
+// Keywords have a 50 character limit each, and up to 32 can be added per locale.
+type KeywordSet []string
 
-func (k *Keyword) MarshalJSON() ([]byte, error) {
-	type raw struct {
-		Values []string `json:"Values,omitempty"`
-	}
-	return json.Marshal(raw{Values: *k})
+// MarshalJSON implements [json.Marshaler] for KeywordSet,
+// encoding it as a JSON object with a "Values" field as required by the PlayFab API.
+func (s KeywordSet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Values []string
+	}{Values: s})
 }
 
-func (k *Keyword) UnmarshalJSON(b []byte) error {
-	var raw struct {
-		Values []string `json:"Values,omitempty"`
-	}
-	if err := json.Unmarshal(b, &raw); err != nil {
+// UnmarshalJSON implements [json.Unmarshaler] for KeywordSet,
+// decoding it from a JSON object with a "Values" field as returned by the PlayFab API.
+func (s *KeywordSet) UnmarshalJSON(b []byte) error {
+	if err := json.Unmarshal(b, &struct {
+		Values *[]string
+	}{Values: (*[]string)(s)}); err != nil {
 		return err
 	}
-	*k = raw.Values
 	return nil
 }
 
+// ModerationState represents the moderation status of a catalog item.
+// Moderation is typically applied to community-provided (UGC) items.
 type ModerationState struct {
-	// LastModifiedDate is the date and time the ModerationState was last updated.
-	LastModifiedDate time.Time `json:"LastModifiedDate,omitempty"`
-	// Reason is the current stated reason for the associated Item being moderated.
-	Reason string `json:"Reason,omitempty"`
-	// Status is the current moderation status for the associated Item.
-	Status string `json:"Status,omitempty"`
+	// LastModifiedDate is the date and time this moderation state was last updated.
+	LastModifiedDate time.Time
+	// Reason is the stated reason for the item being moderated, if applicable.
+	Reason string
+	// Status is the current moderation status of the item.
+	// It can be one of the constants prefixed with ModerationStatus* defined below.
+	Status string
 }
 
 const (
-	ModerationStatusApproved           string = "Approved"
-	ModerationStatusAwaitingModeration string = "AwaitingModeration"
-	ModerationStatusRejected           string = "Rejected"
-	ModerationStatusUnknown            string = "Unknown"
+	// ModerationStatusUnknown indicates an unknown moderation status.
+	ModerationStatusUnknown = "Unknown"
+	// ModerationStatusAwaitingModeration indicates the item is pending moderation review.
+	ModerationStatusAwaitingModeration = "AwaitingModeration"
+	// ModerationStatusApproved indicates the item has been approved by moderation.
+	ModerationStatusApproved = "Approved"
+	// ModerationStatusRejected indicates the item has been rejected by moderation.
+	ModerationStatusRejected = "Rejected"
 )
 
+// Rating represents the aggregated rating summary for a catalog item.
 type Rating struct {
-	// Average is the average rating for the Item.
-	Average float32 `json:"Average,omitempty"`
-	// Count1Star is the total count of 1-star ratings for the Item.
-	Count1Star int `json:"Count1Star,omitempty"`
-	// Count2Star is the total count of 2-star ratings for the Item.
-	Count2Star int `json:"Count2Star,omitempty"`
-	// Count3Star is the total count of 3-star ratings for the Item.
-	Count3Star int `json:"Count3Star,omitempty"`
-	// Count4Star is the total count of 4-star ratings for the Item.
-	Count4Star int `json:"Count4Star,omitempty"`
-	// Count5Star is the total count of 5-star ratings for the Item.
-	Count5Star int `json:"Count5Star,omitempty"`
-	// TotalCount is the total count of ratings for the Item.
-	TotalCount int `json:"TotalCount,omitempty"`
+	// Average is the average star rating for this item.
+	Average float32
+	// Count1Star is the total number of 1-star ratings for this item.
+	Count1Star int
+	// Count2Star is the total number of 2-star ratings for this item.
+	Count2Star int
+	// Count3Star is the total number of 3-star ratings for this item.
+	Count3Star int
+	// Count4Star is the total number of 4-star ratings for this item.
+	Count4Star int
+	// Count5Star is the total number of 5-star ratings for this item.
+	Count5Star int
+	// TotalCount is the total number of ratings submitted for this item.
+	TotalCount int
 }
 
-type StoreDetails struct {
-	// FilterOptions is the options for the filter in filter-based stores.
-	// There options are mutually exclusive with item references.
-	FilterOptions FilterOptions `json:"FilterOptions,omitempty"`
-	// PriceOptionsOverride is the global prices utilized in the store. These
-	// options are mutually exclusive with price options in ItemReference.
-	PriceOptionsOverride PriceOptionsOverride `json:"PriceOptionsOverride,omitempty"`
+// RealMoneyPrices contains the real-money prices for a catalog item across
+// multiple marketplace platforms. Each field is a map from ISO 4217 currency code
+// to the price expressed in the smallest currency unit (e.g. 139 for $1.39 USD).
+// Currently, only United States Dollar (USD) is supported.
+type RealMoneyPrices struct {
+	// AppleAppStorePrices is the price map for the Apple App Store, keyed by currency code.
+	AppleAppStorePrices map[string]int
+	// GooglePlayPrices is the price map for Google Play, keyed by currency code.
+	GooglePlayPrices map[string]int
+	// MicrosoftStorePrices is the price map for the Microsoft Store, keyed by currency code.
+	MicrosoftStorePrices map[string]int
+	// NintendoEShopPrices is the price map for the Nintendo eShop, keyed by currency code.
+	NintendoEShopPrices map[string]int
+	// PlayStationStorePrices is the price map for the PlayStation Store, keyed by currency code.
+	PlayStationStorePrices map[string]int
+	// SteamPrices is the price map for Steam, keyed by currency code.
+	SteamPrices map[string]int
 }
-
-type FilterOptions struct {
-	Filter          string `json:"Filter,omitempty"`
-	IncludeAllItems bool   `json:"IncludeAllItems,omitempty"`
-}
-
-type PriceOptionsOverride []PriceOverride
-
-func (opts PriceOptionsOverride) MarshalJSON() ([]byte, error) {
-	type raw struct {
-		Prices []PriceOverride `json:"Prices,omitempty"`
-	}
-	return json.Marshal(raw{Prices: opts})
-}
-
-func (opts *PriceOptionsOverride) UnmarshalJSON(b []byte) error {
-	var raw struct {
-		Prices []PriceOverride `json:"Prices,omitempty"`
-	}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	*opts = raw.Prices
-	return nil
-}
-
-type PriceOverride struct {
-	// Amounts is the currency amounts utilized in the override for a singular price.
-	Amounts []PriceAmountOverride `json:"Amounts,omitempty"`
-}
-
-type PriceAmountOverride struct {
-	// FixedValue is the exact value that should be utilized in the PriceAmountOverride.
-	FixedValue int `json:"FixedValue,omitempty"`
-	// ItemID is the ID of the Item the PriceAmountOverride should utilize.
-	ItemID string `json:"ItemId,omitempty"`
-	// Multiplier is the multiplier that will be applied to the base catalog value
-	// to determine what value should be utilized in the PriceAmountOverride.
-	Multiplier int `json:"Multiplier,omitempty"`
-}
-
-const (
-	ItemTypeBundle      = "bundle"
-	ItemTypeCatalogItem = "catalogItem"
-	ItemTypeCurrency    = "currency"
-	ItemTypeStore       = "store"
-	ItemTypeUGC         = "ugc"
-)
