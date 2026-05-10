@@ -2,7 +2,6 @@ package catalog
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -45,19 +44,13 @@ func (d *Dictionary[T]) UnmarshalJSON(b []byte) error {
 	if *d == nil {
 		return fmt.Errorf("invalid dictionary JSON: %s", b)
 	}
-	var hasNeutral bool
 	for key := range *d {
 		if strings.EqualFold(key, "neutral") {
-			hasNeutral = true
 			continue
 		}
 		if _, err := language.Parse(key); err != nil {
 			return fmt.Errorf("catalog: Dictionary: parse %q as language tag: %w", key, err)
 		}
-	}
-	// The neutral key is required for all dictionaries.
-	if !hasNeutral {
-		return errors.New("catalog: Dictionary: no value was found for neutral")
 	}
 	return nil
 }
