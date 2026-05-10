@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/df-mc/go-playfab/entity"
-	"github.com/google/uuid"
 )
 
 // Item represents a catalog item in the PlayFab Economy v2 catalog.
@@ -229,7 +228,7 @@ type PriceAmount struct {
 	// Value is the amount of currency required.
 	Value int `json:"Amount"`
 	// ItemID is the ID of the catalog item used as currency for this amount.
-	ItemID uuid.UUID `json:"ItemId"`
+	ItemID string `json:"ItemId"`
 }
 
 // KeywordSet is a list of localized keywords associated with a catalog item.
