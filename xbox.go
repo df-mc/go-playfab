@@ -10,15 +10,16 @@ import (
 )
 
 // LoginWithXbox logs in to PlayFab account in the specified title ID with an Xbox Live account.
-func LoginWithXbox(ctx context.Context, t title.Title, client *xsapi.Client, config ClientConfig) (*Client, error) {
+func LoginWithXbox(ctx context.Context, t title.Title, client xsapi.TokenAndSignaturer, config ClientConfig) (*Client, error) {
 	return Login(ctx, t, &XBLIdentityProvider{Client: client}, config)
 }
 
 // XBLIdentityProvider implements an [IdentityProvider] that logs in to PlayFab account
-// with an Xbox Live account using the underlying Client.
+// with an Xbox Live account using the underlying token and signature resolver.
 type XBLIdentityProvider struct {
-	// Client is the Xbox Live API Client used to log in to Xbox Live services.
-	Client *xsapi.Client
+	// Client resolves the XSTS token and signature policy used to log in to
+	// PlayFab with Xbox Live.
+	Client xsapi.TokenAndSignaturer
 }
 
 // Login ...
