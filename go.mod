@@ -1,10 +1,10 @@
 module github.com/df-mc/go-playfab/v2
 
-go 1.26.1
+go 1.25.0
 
 require (
 	github.com/df-mc/go-xsapi/v2 v2.0.2-0.20260618232321-7db98a0b7856
-	golang.org/x/text v0.35.0
+	golang.org/x/text v0.34.0
 )
 
 require (
