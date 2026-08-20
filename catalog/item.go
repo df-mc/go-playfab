@@ -175,9 +175,9 @@ type Image struct {
 const (
 	// ImageTypeThumbnail is the image type for a thumbnail image.
 	// Only one thumbnail image is allowed per catalog item.
-	ImageTypeThumbnail = "thumbnail"
+	ImageTypeThumbnail = "Thumbnail"
 	// ImageTypeScreenshot is the image type for a screenshot image.
-	ImageTypeScreenshot = "screenshot"
+	ImageTypeScreenshot = "Screenshot"
 )
 
 // ItemReference represents a reference to another catalog item.
