@@ -16,6 +16,11 @@ type Dictionary[T any] map[string]T
 // Lookup looks up for the value with the key.
 func (d *Dictionary[T]) Lookup(key string) (zero T, ok bool) {
 	for k, value := range *d {
+		if s, ok := any(value).(string); ok && s == "" {
+			// Fix for empty localized values that are present in some
+			// of the catalog items used in Minecraft.
+			continue
+		}
 		if strings.EqualFold(k, key) {
 			return value, true
 		}
