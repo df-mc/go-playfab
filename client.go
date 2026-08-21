@@ -132,6 +132,16 @@ func (c *Client) LoginInfo() LoginInfo {
 	return c.loginResult.InfoResult
 }
 
+// PlayFabID returns the ID of the caller's master player account.
+// It can also be used to request entity tokens for the master player account.
+// This ID is unique across all titles in PlayFab. Refer to
+// [entity.TypeMasterPlayerAccount].
+func (c *Client) PlayFabID() string {
+	c.loginMu.RLock()
+	defer c.loginMu.RUnlock()
+	return c.loginResult.PlayFabID
+}
+
 // NewlyCreated reports whether a PlayFab account was newly created during the initial login.
 func (c *Client) NewlyCreated() bool {
 	return c.newlyCreated
