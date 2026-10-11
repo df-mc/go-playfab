@@ -51,12 +51,15 @@ func RequestHeader(key, value string) RequestOption {
 func Post[T any](ctx context.Context, client *http.Client, u *url.URL, reqBody any, opts []RequestOption) (value T, err error) {
 	var r io.Reader
 	if reqBody != nil {
-		buf := &bytes.Buffer{}
-		defer buf.Reset()
-		if err := json.NewEncoder(buf).Encode(reqBody); err != nil {
-			return value, fmt.Errorf("encode request body: %w", err)
+		var ok bool
+		if r, ok = reqBody.(io.Reader); !ok {
+			buf := &bytes.Buffer{}
+			defer buf.Reset()
+			if err := json.NewEncoder(buf).Encode(reqBody); err != nil {
+				return value, fmt.Errorf("encode request body: %w", err)
+			}
+			r = buf
 		}
-		r = buf
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), r)

@@ -21,6 +21,9 @@ type CustomIDIdentityProvider struct {
 	// request when Encrypt is set, so a title that requires encryption does not
 	// force the secret to be sent in clear text.
 	//
+	// Some titles use it to sign in with the same identity after creating an account
+	// using an encrypted request.
+	//
 	// It is a field on the provider rather than on ClientConfig because
 	// ClientConfig builds the LoginRequest without one, so a caller would
 	// otherwise have no way to supply it.
@@ -44,13 +47,6 @@ func (i CustomIDIdentityProvider) Login(ctx context.Context, client *http.Client
 	}
 	requestURL := request.Title.URL().JoinPath("/Client/LoginWithCustomID")
 
-	payload := loginWithCustomID{
-		LoginRequest: request,
-		CustomID:     i.CustomID,
-	}
-	if i.PlayerSecret != "" {
-		payload.PlayerSecret = i.PlayerSecret
-	}
 	if i.Encrypt != nil {
 		// The encryption hook takes the payload PlayFab would otherwise receive
 		// in clear text, so build it first and only then encrypt. Everything the
@@ -68,11 +64,19 @@ func (i CustomIDIdentityProvider) Login(ctx context.Context, client *http.Client
 		if err != nil {
 			return nil, fmt.Errorf("playfab: encrypt custom ID payload: %w", err)
 		}
-		// A title that requires encryption rejects a plain CustomID, so the
-		// clear-text fields are dropped once they are encrypted. Leaving the
-		// secret in the clear would defeat the point of sending it encrypted.
-		payload = loginWithCustomID{LoginRequest: request}
-		payload.EncryptedRequest = encrypted
+		// We don't set request.PlayerSecret here because setting the 'X-PlayFab-Signature' and
+		// 'X-PlayFab-Timestamp' headers on the encrypted request seems to cause a 'SignedRequestNotAllowed' error.
+		return request.Login(ctx, client, requestURL, loginWithCustomID{
+			LoginRequest:     request,
+			EncryptedRequest: encrypted,
+		})
+	}
+	payload := loginWithCustomID{
+		LoginRequest: request,
+		CustomID:     i.CustomID,
+	}
+	if i.PlayerSecret != "" {
+		request.PlayerSecret = i.PlayerSecret
 	}
 	return request.Login(ctx, client, requestURL, payload)
 }
